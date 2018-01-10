@@ -28,6 +28,7 @@
 
 //声明定位服务对象属性（负责定位）
 @property (nonatomic, strong) BMKLocationService *locationService;
+@property (nonatomic, strong) BMKUserLocation *userLocation;
 
 //声明地址位置搜索对象(负责地理编码)
 @property (nonatomic, strong) BMKGeoCodeSearch * geoCodeSearch;
@@ -200,7 +201,8 @@
  */
 -(void)didUpdateBMKUserLocation:(BMKUserLocation *)userLocation
 {
-    //    [self.mapView updateLocationData:userLocation];
+    _userLocation = userLocation;
+    [self.mapView updateLocationData:userLocation];
     
     /**
      定位成功回调方法，定位成功后，完成当前位置的反向地理编码，然后在定位到的位置上插入一个大头针
@@ -223,19 +225,12 @@
 -(void)onGetReverseGeoCodeResult:(BMKGeoCodeSearch *)searcher result:(BMKReverseGeoCodeResult *)result errorCode:(BMKSearchErrorCode)error
 {
     /*
-     成功获取反向地理编码后，添加大头针
+     成功获取反向地理编码后，modify userLocation
      */
     
-    //1、定义大头针标注
-    BMKPointAnnotation *annootation = [[BMKPointAnnotation alloc] init];
-    //2、设置标注的位置坐标
-    annootation.coordinate = result.location;
-    //
-    annootation.title = result.address;
-    //添加到地图中
-    [self.mapView addAnnotation:annootation];
-    //使地图显示该位置
-    [self.mapView setCenterCoordinate:result.location animated:YES];
+    _userLocation.title = result.address;
+    _userLocation.subtitle = @"副标题";
+    [self.mapView updateLocationData:_userLocation];
 
 }
 
